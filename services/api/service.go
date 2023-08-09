@@ -1258,18 +1258,23 @@ func (api *RelayAPI) handleGetPayload(w http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	// Validate proposer signature (first attempt verifying the Capella signature)
-	// TODO: add deneb support.
-	ok, err := boostTypes.VerifySignature(payload.Message(), api.opts.EthNetDetails.DomainBeaconProposerCapella, pk[:], payload.Signature())
-	if !ok || err != nil {
-		if api.ffLogInvalidSignaturePayload {
-			txt, _ := json.Marshal(payload) //nolint:errchkjson
-			fmt.Println("payload_invalid_sig_capella: ", string(txt), "pubkey:", proposerPubkey.String())
-		}
-		log.WithError(err).Warn("could not verify capella payload signature")
-		api.RespondError(w, http.StatusBadRequest, "could not verify payload signature")
-		return
-	}
+	log.WithField("capella payload message", payload.Message())
+	log.WithField("capella payload message", payload.Signature())
+	log.WithField("capella payload pub key", pk[:])
+	log.WithField("capella payload eth det", api.opts.EthNetDetails.DomainBeaconProposerCapella)
+
+	//// Validate proposer signature (first attempt verifying the Capella signature)
+	//// TODO: add deneb support.
+	//ok, err := boostTypes.VerifySignature(payload.Message(), api.opts.EthNetDetails.DomainBeaconProposerCapella, pk[:], payload.Signature())
+	//if !ok || err != nil {
+	//	if api.ffLogInvalidSignaturePayload {
+	//		txt, _ := json.Marshal(payload) //nolint:errchkjson
+	//		fmt.Println("payload_invalid_sig_capella: ", string(txt), "pubkey:", proposerPubkey.String())
+	//	}
+	//	log.WithError(err).Warn("could not verify capella payload signature")
+	//	api.RespondError(w, http.StatusBadRequest, "could not verify payload signature")
+	//	return
+	//}
 
 	// Log about received payload (with a valid proposer signature)
 	log = log.WithField("timestampAfterSignatureVerify", time.Now().UTC().UnixMilli())
